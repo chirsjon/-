@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.seventeam.dao.TDeptMapper">
+  <resultMap id="BaseResultMap" type="com.seventeam.entity.TDept">
+    <id column="dept_id" jdbcType="INTEGER" property="deptId" />
+    <result column="deptname" jdbcType="VARCHAR" property="deptname" />
+    <result column="order_num" jdbcType="INTEGER" property="orderNum" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="del_flag" jdbcType="CHAR" property="delFlag" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    dept_id, deptname, order_num, status, del_flag, remark
+  </sql>
+<select id="findAllDept" resultMap="BaseResultMap">
+        select * from tbl_dept where del_flag=0
+
+</select>
+  <delete id="deleteDept" parameterType="java.util.List">
+    delete from tbl_dept
+    where dept_id in
+    <foreach collection="ids" item="xxx" open="(" close=")" separator=",">
+      #{xxx}
+    </foreach>
+  </delete>
+  <insert id="insertDept" parameterType="com.seventeam.entity.TDept" >
+    insert into tbl_dept (dept_id, deptname, order_num, 
+      status, del_flag, remark)
+    values (#{deptId,jdbcType=INTEGER}, #{deptname,jdbcType=VARCHAR}, #{orderNum,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR}, #{delFlag,jdbcType=CHAR}, #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.seventeam.entity.TDept">
+    insert into tbl_dept
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="deptId != null">
+        dept_id,
+      </if>
+      <if test="deptname != null">
+        deptname,
+      </if>
+      <if test="orderNum != null">
+        order_num,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="delFlag != null">
+        del_flag,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="deptId != null">
+        #{deptId,jdbcType=INTEGER},
+      </if>
+      <if test="deptname != null">
+        #{deptname,jdbcType=VARCHAR},
+      </if>
+      <if test="orderNum != null">
+        #{orderNum,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="delFlag != null">
+        #{delFlag,jdbcType=CHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="logicalDelDept" parameterType="java.util.List">
+    update tbl_dept
+    set del_flag = '2'
+    where dept_id in
+    <foreach collection="ids" item="xxx" open="(" close=")" separator=",">
+      #{xxx}
+    </foreach>
+  </update>
+  <update id="forbiddenDept" parameterType="java.lang.Integer">
+    update tbl_dept
+    set status = '1'
+    where dept_id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateDept" parameterType="com.seventeam.entity.TDept">
+    update tbl_dept
+    set deptname = #{deptname,jdbcType=VARCHAR},
+      order_num = #{orderNum,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      del_flag = #{delFlag,jdbcType=CHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where dept_id = #{deptId,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,314 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <script th:src="@{/js/jquery-1.10.2.js}"></script>
+        <script th:src="@{/layui/layui.all.js}"></script>
+        <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+        <style>
+            .demo-side {
+                position: relative;
+                transition: all .3s;
+            }
+
+            .demo-side.show {
+                padding-left: 120px;
+                position: relative;
+            }
+
+            .demo-side:before {
+                content: "假设这是侧边栏, treeTable使用了与layui数据表格完全不同的列宽分配方式, 由浏览器来分配, 所以当容器宽度变化后会自动适应, 对单页面系统非常友好";
+                position: absolute;
+                left: 0;
+                top: 50%;
+                margin-top: -90px;
+                width: 105px;
+                visibility: hidden;
+                line-height: 1.5;
+            }
+
+            .demo-side.show:before {
+                visibility: visible;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="text/html" id="mytoolbar">
+            <button type="button" class="layui-btn layui-btn-sm" lay-event="saveMenuForm"><i class="layui-icon layui-icon-addition"></i>添加</button>
+        </script>
+        <form class="layui-form" action="" id="saveMenuForm" style="display: none" >
+            <div class="layui-form-item">
+                <label class="layui-form-label">菜单类型：</label>
+                <div class="layui-input-block">
+                    <select id="menu_type" name="menu_type">
+                        <option value="M">M一级菜单</option>
+                        <option value="C">C二级菜单</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">菜单名称：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="menuname" required  lay-verify="required"  autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">请求地址：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="url" required  lay-verify="required"  autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">权限标识：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="perms" required  lay-verify="required"  autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">显示排序：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="order_num" required  lay-verify="required"  autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button"  	class="layui-btn layui-btn-normal" lay-submit lay-filter="saveMenuForm">保存</button>
+                    <button type="reset"  	class="layui-btn layui-btn-warm">重置</button>
+                </div>
+            </div>
+
+        </form>
+        <form class="layui-form" action="" id="editMenuForm" style="display: none">
+            <!--id或者name要与表单的字段一致-->
+            <input type="hidden" id="menu_id" name="menu_id" >
+            <div class="layui-form-item">
+                <label class="layui-form-label">菜单名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="menuname" name="menuname" required  lay-verify="required" placeholder="请输入菜单名称" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button type="button"  	class="layui-btn layui-btn-normal" lay-submit lay-filter="editMenuForm">修改</button>
+                    <button type="reset"  	class="layui-btn layui-btn-warm">重置</button>
+                </div>
+            </div>
+        </form>
+        <div class="page-wrapper">
+
+            <div class="layui-btn-container" style="display: inline-block;">
+                <button id="btnReload" class="layui-btn layui-btn-sm layui-btn-primary">
+                    <i class="layui-icon">&#xe666;</i>重载
+                </button>
+                <button id="btnRefresh" class="layui-btn layui-btn-sm layui-btn-primary">
+                    <i class="layui-icon">&#xe669;</i>刷新
+                </button>
+            </div>
+
+            <div class="demo-side">
+                <table id="demoTreeTb" lay-filter="demoTreeTb"></table>
+            </div>
+        </div>
+    </body>
+        <!-- 表格操作列 -->
+        <script type="text/html" id="tbBar">
+            <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </script>
+        <script>
+            layui.config({
+                base: '/layui/lay/modules/'      //自定义layui组件的目录
+            }).extend({ //设定组件别名
+                treeTable:   'treeTable',
+            });
+            layui.use(['layer', 'util', 'treeTable','form'], function () {
+                var $ = layui.jquery;
+                var layer = layui.layer;
+                var util = layui.util;
+                var treeTable = layui.treeTable;
+                var form=layui.form;
+                form.render();
+                $('body').removeClass('layui-hide');
+                // 渲染表格
+                    var insTb = treeTable.render({
+                        elem: '#demoTreeTb',
+                        url:'selectAllMenu',
+                        toolbar: '#mytoolbar',
+                        height: 'full-200',
+                        tree: {
+                            iconIndex: 2,
+                            isPidData: true,
+                            idName: 'menu_id',
+                            pidName: 'parent_id'
+                        },
+                        defaultToolbar: ['filter', 'print', 'exports', {
+                            title: '提示',
+                            layEvent: 'LAYTABLE_TIPS',
+                            icon: 'layui-icon-tips'
+                        }],
+                        cols: [
+                            [
+                                {type: 'numbers'},
+                                {type: 'checkbox'},
+                                {field: 'menu_id', title: '菜单ID', minWidth: 100},
+                                {field: 'menuname', title: '菜单名称', minWidth: 100},
+                                {
+                                    title: '菜单图标', align: 'center', hide: true,
+                                    templet: '<p><i class="layui-icon {{d.menuIcon}}"></i></p>'
+                                },
+                                {field: 'order_num', title: '排序'},
+                                {field: 'url', title: '请求地址'},
+                                {title: '类型', templet: '<p>{{d.isMenu?"菜单":"菜单"}}</p>', align: 'center', width: 60},
+                                {field: 'perms', title: '权限标识', minWidth:100},
+                                // {
+                                //     title: '创建时间', templet: function (d) {
+                                //         return util.toDateString(d.createTime);
+                                //     }
+                                // },
+                                {align: 'center', toolbar: '#tbBar', title: '操作', width: 160}
+                            ]
+                        ],
+                        style: 'margin-top:0;',
+
+                });
+
+                // 工具列点击事件
+                treeTable.on('tool(demoTreeTb)', function (obj) {
+                    var event = obj.event;
+                    var data=obj.data;
+                    // var ids=[];
+                    if (event === 'del') {
+                        layer.confirm('确定删除该条菜单信息吗？', function(index){
+                            $.ajax({
+                                url:"delMenu",
+                                datatype:'json',
+                                type: 'POST',
+                                data:data,
+                                success:function (result) {
+                                    if(result.code==0){
+                                        layer.closeAll();
+                                        layer.msg(result.message,{icon:1})
+                                        insTb.reload();
+                                    }
+                                    else {
+                                        layer.closeAll();
+                                        layer.msg(result.message,{icon:5})
+                                    }
+                                }
+
+                            })
+                            obj.del(); //删除对应行（tr）的DOM结构
+                            layer.close(index);
+                            //向服务端发送删除指令
+                        });
+                    } else if (event === 'edit') {
+                        layer.msg('修改操作');
+                        //填充修改用户的表单项
+                        //获取表格字段的值，赋给相应字段（二者字段名要一致）
+                        $("#menuname").val(data.menuname);
+                        $("#menu_id").val(data.menu_id);
+                        layer.open(
+                            {
+                                type: 1,
+                                content: $("#editMenuForm"),
+                                icon: 1,
+                                title:"修改用户",
+                                area: ['450px', '200px']
+                            }
+                        )
+                        // obj.update({menuName: '新的名称'});
+                    }
+                });
+
+                // 头部工具栏点击事件
+                treeTable.on('toolbar(demoTreeTb)', function (obj) {
+                    switch (obj.event) {
+                        case 'saveMenuForm':
+                            layer.open(
+                                {
+                                    type: 1,
+                                    content: $("#saveMenuForm"),
+                                    icon: 1,
+                                    title:"添加菜单",
+                                    area: ['450px', '400px']
+                                }
+                            )
+                            break;
+                    };
+                });
+
+
+
+                // 设置选中
+                $('#btnChecked').click(function () {
+                    insTb.expand(4);
+                    insTb.setChecked([4]);
+                });
+                // 重载
+                $('#btnReload').click(function () {
+                    insTb.reload();
+                });
+                $('#btnRefresh').click(function () {
+                    insTb.refresh();
+                });
+                //监听添加菜单表单提交
+                form.on('submit(saveMenuForm)', function(data){
+                    //数据的提交，ajax方式
+                    $.ajax({
+                        url: 'saveMenu',//地址
+                        dataType: 'json',//数据类型
+                        type: 'POST',//类型
+                        data:data.field,
+                        //请求成功
+                        success: function (result) {
+                            if(result.code==0){
+                                //关闭弹出层
+                                layer.closeAll();
+                                //显示添加成功消息
+                                layer.msg(result.message,{icon:1})
+                                //重新加载数据表格
+                                insTb.reload();
+                            }else
+                            {
+                                //关闭弹出层
+                                layer.closeAll();
+                                layer.msg(result.message,{icon:5})
+                            }
+                        }
+                    });
+                    return false;
+                });
+                //监听修改菜单表单提交
+                form.on('submit(editMenuForm)', function(data){
+                    //数据的提交，ajax方式
+                    $.ajax({
+                        url: 'editMenu',//地址
+                        dataType: 'json',//数据类型
+                        type: 'POST',//类型
+                        data:data.field,
+                        //请求成功
+                        success: function (result) {
+                            if(result.code==0){
+                                //关闭弹出层
+                                layer.closeAll();
+                                //显示添加成功消息
+                                layer.msg(result.message,{icon:1})
+                                //重新加载数据表格
+                                insTb.reload();
+                            }else
+                            {
+                                //关闭弹出层
+                                layer.closeAll();
+                                layer.msg(result.message,{icon:5})
+                            }
+                        }
+                    });
+                    return false;
+                });
+            });
+
+        </script>
+</html>

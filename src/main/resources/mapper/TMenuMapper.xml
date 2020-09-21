@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.seventeam.dao.TMenuMapper">
+  <resultMap id="BaseResultMap" type="com.seventeam.entity.TMenu">
+    <id column="menu_id" jdbcType="INTEGER" property="menu_id" />
+    <result column="menuname" jdbcType="VARCHAR" property="menuname" />
+    <result column="parent_id" jdbcType="INTEGER" property="parent_id" />
+    <result column="order_num" jdbcType="INTEGER" property="order_num" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="menu_type" jdbcType="CHAR" property="menu_type" />
+    <result column="visible" jdbcType="CHAR" property="visible" />
+    <result column="perms" jdbcType="VARCHAR" property="perms" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    menu_id, menuname, parent_id, order_num, url, menu_type, visible, perms, icon, remark
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_menu
+    where menu_id = #{menu_id,jdbcType=INTEGER}
+  </select>
+    <select id="selectAllMenu" resultType="com.seventeam.entity.TMenu">
+      select * from tbl_menu
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="com.seventeam.entity.TMenu">
+      delete from tbl_menu
+      where menu_id =#{menu_id}
+  </delete>
+  <insert id="insert" parameterType="com.seventeam.entity.TMenu">
+    insert into tbl_menu (menu_id, menuname, parent_id,
+      order_num, url, menu_type, 
+      visible, perms, icon, 
+      remark)
+    values (#{menu_id,jdbcType=INTEGER}, #{menuname,jdbcType=VARCHAR}, #{parent_id,jdbcType=INTEGER},
+      #{order_num,jdbcType=INTEGER}, #{url,jdbcType=VARCHAR}, #{menu_type,jdbcType=CHAR},
+      #{visible,jdbcType=CHAR}, #{perms,jdbcType=VARCHAR}, #{icon,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.seventeam.entity.TMenu">
+    insert into tbl_menu
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="menu_id != null">
+        menu_id,
+      </if>
+      <if test="menuname != null">
+        menuname,
+      </if>
+      <if test="parent_id != null">
+        parent_id,
+      </if>
+      <if test="order_num != null">
+        order_num,
+      </if>
+      <if test="url != null">
+        url,
+      </if>
+      <if test="menu_type != null">
+        menu_type,
+      </if>
+      <if test="visible != null">
+        visible,
+      </if>
+      <if test="perms != null">
+        perms,
+      </if>
+      <if test="icon != null">
+        icon,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="menu_id != null">
+        #{menu_id,jdbcType=INTEGER},
+      </if>
+      <if test="menuname != null">
+        #{menuname,jdbcType=VARCHAR},
+      </if>
+      <if test="parent_id != null">
+        #{parent_id,jdbcType=INTEGER},
+      </if>
+      <if test="order_num != null">
+        #{order_num,jdbcType=INTEGER},
+      </if>
+      <if test="url != null">
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="menu_type != null">
+        #{menu_type,jdbcType=CHAR},
+      </if>
+      <if test="visible != null">
+        #{visible,jdbcType=CHAR},
+      </if>
+      <if test="perms != null">
+        #{perms,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.seventeam.entity.TMenu">
+    update tbl_menu
+    <set>
+      <if test="menuname != null">
+        menuname = #{menuname,jdbcType=VARCHAR},
+      </if>
+      <if test="parent_id != null">
+        parent_id = #{parent_id,jdbcType=INTEGER},
+      </if>
+      <if test="order_num != null">
+        order_num = #{order_num,jdbcType=INTEGER},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="menu_type != null">
+        menu_type = #{menu_type,jdbcType=CHAR},
+      </if>
+      <if test="visible != null">
+        visible = #{visible,jdbcType=CHAR},
+      </if>
+      <if test="perms != null">
+        perms = #{perms,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where menu_id = #{menu_id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.seventeam.entity.TMenu">
+    update tbl_menu
+    set menuname = #{menuname,jdbcType=VARCHAR},
+      parent_id = #{parent_id,jdbcType=INTEGER},
+      order_num = #{order_num,jdbcType=INTEGER},
+      url = #{url,jdbcType=VARCHAR},
+      menu_type = #{menu_type,jdbcType=CHAR},
+      visible = #{visible,jdbcType=CHAR},
+      perms = #{perms,jdbcType=VARCHAR},
+      icon = #{icon,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR}
+    where menu_id = #{menu_id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByMenuname" parameterType="com.seventeam.entity.TMenu">
+    update tbl_menu
+    <set>
+      <if test="menuname != null">
+        menuname = #{menuname,jdbcType=VARCHAR},
+      </if>
+      <if test="parent_id != null">
+        parent_id = #{parent_id,jdbcType=INTEGER},
+      </if>
+      <if test="order_num != null">
+        order_num = #{order_num,jdbcType=INTEGER},
+      </if>
+      <if test="url != null">
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="menu_type != null">
+        menu_type = #{menu_type,jdbcType=CHAR},
+      </if>
+      <if test="visible != null">
+        visible = #{visible,jdbcType=CHAR},
+      </if>
+      <if test="perms != null">
+        perms = #{perms,jdbcType=VARCHAR},
+      </if>
+      <if test="icon != null">
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where perms = #{perms,jdbcType=VARCHAR}
+  </update>
+
+</mapper>
